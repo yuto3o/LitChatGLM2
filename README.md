@@ -3,13 +3,13 @@ Fine-tuning 🤖[ChatGLM2](https://github.com/THUDM/ChatGLM2-6B) with 🤗[HF-Lo
 
 ## Data
 ```json lines
-{"instruction": "将以下句子从一种时态转化成另一种时态", 'input': "他正在往商店走", output: "他曾经往商店走过"}
-{"instruction": "针对产品发布提出五种营销策略。", 'input': "", output: "1. 社交媒体活动。\n2. 电子邮件营销。\n3. 在线和离线广告。\n4. 推荐和评论。\n5. 合作名人推销。"}
+{"instruction": "将以下句子从一种时态转化成另一种时态", "input": "他正在往商店走", "output": "他曾经往商店走过"}
+{"instruction": "针对产品发布提出五种营销策略。", "input": "", "output": "1. 社交媒体活动。\n2. 电子邮件营销。\n3. 在线和离线广告。\n4. 推荐和评论。\n5. 合作名人推销。"}
 ...
 ```
 
 ## Train
-set `model.bits to 4` for QLoRA
+set `model.bits` to 4 for QLoRA
 ```shell
 CUDA_VISIBLE_DEVICES=0 python run_chatglm2.py fit \
     --model.pretrained_model_name_or_path THUDM/chatglm2-6b \
