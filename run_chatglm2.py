@@ -300,8 +300,7 @@ class LitModule(LightningModule):
             lora_dropout: float = 0.1,
             lora_target_modules=None,
 
-            learning_rate: float = 1e-4,
-            do_predict_every_n_eval_step: int = -1,
+            learning_rate: float = 2e-5,
 
             bits: Union[int] = 4,
             use_gradient_checkpointing: bool = True,
