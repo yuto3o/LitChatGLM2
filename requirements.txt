@@ -1,0 +1,8 @@
+fire==0.5.0
+fsspec==2023.6.0
+lightning==2.0.4
+peft==0.4.0.dev0
+rouge_chinese==1.0.3
+torch==2.0.1
+tqdm==4.65.0
+transformers==4.30.2
