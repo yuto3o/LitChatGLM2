@@ -11,7 +11,8 @@ from lightning.pytorch.cli import LightningCLI
 from peft import get_peft_model, LoraConfig, PeftModel, prepare_model_for_kbit_training, TaskType
 from peft.tuners.lora import LoraLayer
 from torch.utils.data import Dataset, DataLoader
-from transformers import AutoConfig, AutoModel, AutoTokenizer, BitsAndBytesConfig, DataCollatorWithPadding
+from transformers import AutoConfig, AutoModel, AutoTokenizer, BitsAndBytesConfig, DataCollatorWithPadding, \
+    get_constant_schedule_with_warmup
 
 from utils import load_jsonl, prompt
 
@@ -301,6 +302,7 @@ class LitModule(LightningModule):
             lora_target_modules=None,
 
             learning_rate: float = 2e-5,
+            warmup_ratio: float = 0.02,
 
             bits: Union[int] = 4,
             use_gradient_checkpointing: bool = True,
@@ -324,7 +326,6 @@ class LitModule(LightningModule):
             model_args['load_in_4bit'] = bits == 4
             model_args['load_in_8bit'] = bits == 8
             model_args['torch_dtype'] = torch.bfloat16
-            model_args['device_map'] = 'auto'
             model_args['quantization_config'] = BitsAndBytesConfig(
                 load_in_4bit=bits == 4,
                 load_in_8bit=bits == 8,
@@ -415,7 +416,23 @@ class LitModule(LightningModule):
             lr=self.hparams.learning_rate
         )
 
-        return optimizer
+        if self.hparams.warmup_ratio:
+            num_warmup_steps = int(self.hparams.warmup_ratio * len(self.trainer.datamodule.train_dataloader()))
+            assert num_warmup_steps != 0
+        else:
+            num_warmup_steps = 0
+
+        lr_scheduler = get_constant_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=num_warmup_steps),
+
+        return {
+            'optimizer': optimizer,
+            'lr_scheduler': {
+                'scheduler': lr_scheduler,
+                'interval': 'step',
+            },
+        }
 
     def training_step(self, batch, batch_idx):
         output = self(**batch['hf_inputs'])
